@@ -71,7 +71,7 @@ self.onmessage = async (event) => {
                     self.postMessage({ type: 'error', error: error.message });
                 }
                 break;
-            case 'encryptFileInChunks':
+            case 'encryptFile':
                 try {
                     const { file, fileKey } = data;
                     const reader = new FileReader();
@@ -84,14 +84,14 @@ self.onmessage = async (event) => {
                             });
                         };
                         
-                        const data = await libsodium.encryptFileInChunks(
+                        const data = await libsodium.encryptFile(
                             file, 
                             fileKey, 
                             progressHandler
                         );
 
                         self.postMessage({ 
-                            type: 'encryptFileInChunks', 
+                            type: 'encryptFile', 
                             data: data 
                         });
                     };
@@ -117,6 +117,62 @@ self.onmessage = async (event) => {
                     const { thumbnailUint8Array, thumbnailKey } = data;
                     const decryptedThumbnail = await libsodium.decryptThumbnail(thumbnailUint8Array, thumbnailKey);
                     self.postMessage({ type: 'decryptThumbnail', data: decryptedThumbnail });
+                } catch (error) {
+                    console.log('worker error:', error);
+                    self.postMessage({ type: 'error', error: error.message });
+                }
+                break;
+            case 'generateMasterKey':
+                try {
+                    const { masterKeyBase64, masterKeyBytes }= await libsodium.generateMasterKey();
+                    self.postMessage({ type: 'generateMasterKey', data: { masterKeyBase64, masterKeyBytes } });
+                } catch (error) {
+                    console.log('worker error:', error);
+                    self.postMessage({ type: 'error', error: error.message });
+                }
+                break;
+            case 'generateRecoveryKey':
+                try {
+                    const { recoveryKeyBase64, recoveryKeyBytes } = await libsodium.generateRecoveryKey();
+                    self.postMessage({ type: 'generateRecoveryKey', data: { recoveryKeyBase64, recoveryKeyBytes } });
+                } catch (error) {
+                    console.log('worker error:', error);
+                    self.postMessage({ type: 'error', error: error.message });
+                }
+                break;
+            case 'generateSalt':
+                try {
+                    const salt = await libsodium.generateSalt();
+                    self.postMessage({ type: 'generateSalt', data: salt });
+                } catch (error) {
+                    console.log('worker error:', error);
+                    self.postMessage({ type: 'error', error: error.message });
+                }
+                break;
+            case 'deriveKeyEncryption':
+                try {
+                    const { password, salt } = data;
+                    const keyEncryptionKey = await libsodium.deriveKeyEncryption(password, salt);
+                    self.postMessage({ type: 'deriveKeyEncryption', data: keyEncryptionKey });
+                } catch (error) {
+                    console.log('worker error:', error);
+                    self.postMessage({ type: 'error', error: error.message });
+                }
+                break;
+            case 'generateNonce':
+                try {
+                    const nonce = await libsodium.generateNonce();
+                    self.postMessage({ type: 'generateNonce', data: nonce });
+                } catch (error) {
+                    console.log('worker error:', error);
+                    self.postMessage({ type: 'error', error: error.message });
+                }
+                break;
+            case 'encryptKey':
+                try {
+                    const { keyEncryption, nonce, key } = data;
+                    const encryptedKey = await libsodium.encryptKey(keyEncryption, nonce, key );
+                    self.postMessage({ type: 'encryptKey', data: encryptedKey });
                 } catch (error) {
                     console.log('worker error:', error);
                     self.postMessage({ type: 'error', error: error.message });
