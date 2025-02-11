@@ -1,26 +1,47 @@
+/**
+ * This @file contains all necessary functions to encrypt and decrypt data using libsoium.js.
+ * All functions will be used in a worker to avoid blocking the main thread.
+ * 
+ * Docs for the JS library: https://github.com/jedisct1/libsodium.js.
+ */
 import sodium from 'libsodium-wrappers-sumo';
 
-/* 
-*   This function converts a base64 string to a Uint8Array.
-*/
-export const toUint8Array = async (base64) => {
+/**
+ * Converts a base64-encoded string to a Uint8Array using libsodium's `from_base64` function.
+ * @param {string} data - The base64-encoded string to be converted to a Uint8Array.
+ * @returns {Promise<Uint8Array>} The decoded data as a Uint8Array.
+ */
+export const toUint8Array = async (data) => {
     await sodium.ready;
-    return sodium.from_base64(base64);
+    return sodium.from_base64(data);
 }
 
+/**
+ * Converts a Uint8Array to a base64-encoded string using libsodium's `to_base64` function.
+ * @param {Uint8Array} uint8Array - The Uint8Array to be converted to a base64 string
+ * @returns {Promise<string>} The encoded data as a base64 string.
+ */
 export const toBase64 = async (uint8Array) => {
     await sodium.ready;
     return sodium.to_base64(uint8Array);
 }
 
+/**
+ * Generates a random key using the XChaCha20-Poly1305 algorithm.
+ * @returns {Promise<Uint8Array>} The generated key as a Uint8Array.
+ */
 export const generateKey = async () => {
     await sodium.ready;
     return sodium.crypto_secretstream_xchacha20poly1305_keygen()
 }
 
-/*
-*   This function encrypts a text using the XChaCha20-Poly1305 algorithm.
-*/
+/**
+ * Encrypt strings using the encryptText(key, “hello world”) function,
+ * using the XChaCha20-Poly1305 algorithm from libsodium.
+ * @param {Uint8Array} key - The key used to encrypt the text.
+ * @param {string} text - The text to be encrypted.
+ * @returns {Promise<string>} The encrypted text as a base64-encoded string.
+ */
 export const encryptText = async (key, text) => {
     await sodium.ready;
     const keyArray = new Uint8Array(key);
@@ -34,6 +55,13 @@ export const encryptText = async (key, text) => {
     return sodium.to_base64(new Uint8Array([...header, ...encryptedData]));
 };
 
+/**
+ * Decrypt strings using the decryptText(key, "3rtd-_1IPHbblT_j8Z9...") function,
+ * using the XChaCha20-Poly1305 algorithm from libsodium.
+ * @param {Uint8Array} key - The key used to decrypt the text base64.
+ * @param {string} encryptedText - The encrypted text to be decrypted.
+ * @returns {Promise<string>} The decrypted text.
+ */
 export const decryptText = async (key, encryptedText) => {
     await sodium.ready;
     const keyArray = new Uint8Array(key);
@@ -48,7 +76,17 @@ export const decryptText = async (key, encryptedText) => {
     return new TextDecoder().decode(message);
 }
 
-export const encryptFileInChunks = async (file, key, progressCallback) => {
+/**
+ *  This function is used to encrypt files, but is being used for photos and videos using 4MB Chunks,
+ *  passing the @file parameter, @key and the @progressCallback function. 
+ *  This will return the blob and header file already encrypted.
+ *  
+ *  @param {File} file - The file to be encrypted.
+ *  @param {Uint8Array} key - The key used to encrypt the file.
+ *  @param {function} progressCallback - A callback function to follow the progress of encryption from web worker.
+ *  @returns {Promise<{ encryptedBlob: Blob, header: Uint8Array }>} The encrypted file as a Blob and the header as a Uint8Array.
+ */
+export const encryptFile = async (file, key, progressCallback) => {
     await sodium.ready;
     const chunkSize = 1024 * 1024 * 4
     const totalChunks = Math.ceil(file.size / chunkSize);
@@ -68,8 +106,7 @@ export const encryptFileInChunks = async (file, key, progressCallback) => {
   
         const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(state, uint8Array, null, tag);
         encryptedChunks.push(encryptedChunk);
-        
-        // Calcula el progreso y llama al callback si existe
+
         const progress = Math.floor(((i + 1) / totalChunks) * 90);
         if (progressCallback && typeof progressCallback === 'function') {
             progressCallback(progress);
@@ -78,7 +115,18 @@ export const encryptFileInChunks = async (file, key, progressCallback) => {
   
     return { encryptedBlob: new Blob(encryptedChunks, { type: file.type }), header };
 };
-  
+
+/**
+ * This function is used to decrypt files already encrypted by encryptFile() using 4MB chunks, 
+ * passing the parameters @encryptedBlob which is the encrypted file in a blob, 
+ * @key the key that will decrypt the file, @header of the file needed to decrypt and 
+ * the function @progressCallback that will send the decryption % to the worker
+ * 
+ * @param {Blob} encryptedBlob - The encrypted file to be decrypted.
+ * @param {Uint8Array} key - The key used to decrypt the file.
+ * @param {Uint8Array} header - The header of the file needed to decrypt.
+ * @param {function} progressCallback - A callback function to follow the progress of decryption from web worker.
+ */
 export const decryptFile = async (encryptedBlob, key, header, progressCallback) => {
     await sodium.ready;
     const arrayBuffer = await encryptedBlob.arrayBuffer();
@@ -166,4 +214,48 @@ export const decryptThumbnail = async (uint8Array, key) => {
 
     const blob = new Blob([message]);
     return URL.createObjectURL(blob);
+}
+
+export const generateMasterKey = async () => {
+    await sodium.ready;
+    const masterKeyBytes = sodium.randombytes_buf(sodium.crypto_secretbox_KEYBYTES);
+    const masterKeyBase64 = sodium.to_base64(masterKeyBytes);
+    return { masterKeyBase64, masterKeyBytes };
+}
+
+export const generateRecoveryKey = async () => {
+    await sodium.ready;
+    const recoveryKeyBytes = sodium.randombytes_buf(sodium.crypto_secretbox_KEYBYTES);
+    const recoveryKeyBase64 = sodium.to_base64(recoveryKeyBytes);
+    return { recoveryKeyBase64, recoveryKeyBytes };
+}
+
+export const generateSalt = async () => {
+    await sodium.ready;
+    return sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
+}
+
+export const deriveKeyEncryption = async (password, salt) => {
+    await sodium.ready;
+    const keyEncryptionKey = sodium.crypto_pwhash(
+        sodium.crypto_secretbox_KEYBYTES,
+        password,
+        salt,
+        sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,
+        sodium.crypto_pwhash_MEMLIMIT_SENSITIVE,
+        sodium.crypto_pwhash_ALG_ARGON2ID13
+    );
+
+    return keyEncryptionKey;
+}
+
+export const generateNonce = async () => {
+    await sodium.ready;
+    return sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+}
+
+
+export const encryptKey = async (data, nonce, key) => {
+    await sodium.ready;
+    return sodium.crypto_secretbox_easy(data, nonce, key);
 }
