@@ -1,0 +1,36 @@
+{
+  "name": "web",
+  "private": true,
+  "version": "0.0.0",
+  "author": "evairx",
+  "description": "A clon Google Photos with End-to-End Encryption",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/styled": "11.14.0",
+    "@ffmpeg/ffmpeg": "0.12.15",
+    "@ffmpeg/util": "0.12.2",
+    "libsodium-wrappers-sumo": "0.7.15",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-router-dom": "6.29.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.19.0",
+    "@types/react": "19.0.8",
+    "@types/react-dom": "19.0.3",
+    "@vitejs/plugin-react": "4.3.4",
+    "eslint": "9.19.0",
+    "eslint-plugin-react": "7.37.4",
+    "eslint-plugin-react-hooks": "5.1.0",
+    "eslint-plugin-react-refresh": "0.4.18",
+    "globals": "15.14.0",
+    "url": "0.11.4",
+    "vite": "6.0.11"
+  }
+}
