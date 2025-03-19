@@ -1,58 +1,77 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import * as Style from '../ui/uploadstatus'
 import { UploadContext } from '../context/UploadContext';
 
-export default function UploadStatus() {
-    const { state,progress, fileName, uploadError, finishedUpload } = useContext(UploadContext);
-    
+import { CloseSvg, VideoSvg, PhotoSvgUpload} from '@/ui/icons'
 
-    return (
-        <>
-            {fileName && (
-                <Style.Content>
-                    <Style.Header>
-                        <Style.TitleFile>{fileName}</Style.TitleFile>
-                        <Style.PercentageText>{uploadError ? <ErrorSvg/>: finishedUpload ? <FinishedSvg/>: <p>{progress}%</p>}</Style.PercentageText>
-                    </Style.Header>
-                    <Style.ProgressContent>
-                        <Style.ProgressBar progress={progress} error={uploadError} finishedUpload={finishedUpload}/>
-                    </Style.ProgressContent>
-                </Style.Content>
-            )}
-        </>
-    )
+export default function UploadStatus() {
+  const { upload } = useContext(UploadContext);
+  const [view, setView] = useState(true);
+
+  function handleClose() {
+    setView(!view);
+  }
+
+  return (
+    <>
+      {upload.state && (
+        <Style.Container>
+          <Style.Content>
+            <div>
+              <Style.Title>Carga de archivos</Style.Title>
+              <Style.SubTitle error={upload.error}>
+                {upload.totalProgress < 100 
+                  ? upload.error ? 'Error en procesar los archivos':`${upload.filesProcessed} / ${upload.content.length} Archivos procesados`
+                  :`Backup Completado`}
+              </Style.SubTitle>
+            </div>
+            <Style.ButtonsContent>
+              <Style.Button onClick={handleClose}>
+                <ArrowDown view={view}/>
+              </Style.Button>
+              <Style.Button>
+                <CloseSvg />
+              </Style.Button>
+            </Style.ButtonsContent>
+          </Style.Content>
+          <Style.ContentArea view={view}>
+            {upload.content.map((file, index) => (
+              <Style.FilesContent key={index}>
+                <Style.NameContent>
+                  {file.type === 'video' ? 
+                    <VideoSvg colorSvg={file.uploadError ? 'rgb(245, 62, 62)': 'rgb(150, 150, 150)'}/>
+                    :
+                    <PhotoSvgUpload colorSvg={file.uploadError ? 'rgb(245, 62, 62)': 'rgb(150, 150, 150)'}/>
+                  }
+                  <Style.Text error={file.uploadError}>{file.fileName}</Style.Text>
+                </Style.NameContent>
+                <Style.Text error={file.uploadError}>{file.uploadError ? file.errorMessage : `${file.progress}%`}</Style.Text>
+              </Style.FilesContent>
+            ))}
+          </Style.ContentArea>
+          <Style.ProgressContent>
+            <Style.Porgress error={upload.error} progress={upload.totalProgress}></Style.Porgress>
+          </Style.ProgressContent>
+        </Style.Container>
+      )}
+    </>
+  )
 }
 
-const ErrorSvg = () => (
-    <svg
+const ArrowDown = ({view}) => (
+  <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={30}
-    height={30}
+    width={22}
+    height={22}
     fill="none"
     viewBox="0 0 24 24"
+    style={{ marginTop: '5px', transform: view ? 'rotate(0deg)' : 'rotate(180deg)', transition: '.400s' }}
   >
     <path
-      fill="rgb(245, 62, 62)"
+      fill="#fff"
       fillRule="evenodd"
-      d="M7.91 3.23 3.23 7.913v-.01a.81.81 0 0 0-.23.57v7.054c0 .22.08.42.23.57L7.9 20.77c.15.15.36.23.57.23h7.06c.22 0 .42-.08.57-.23l4.67-4.673a.81.81 0 0 0 .23-.57V8.473c0-.22-.08-.42-.23-.57L16.1 3.23a.81.81 0 0 0-.57-.23H8.48c-.22 0-.42.08-.57.23ZM12 7a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0V8a1 1 0 0 1 1-1Zm-1 9a1 1 0 0 1 1-1h.008a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1Z"
+      d="M4.293 8.293a1 1 0 0 1 1.414 0L12 14.586l6.293-6.293a1 1 0 1 1 1.414 1.414l-7 7a1 1 0 0 1-1.414 0l-7-7a1 1 0 0 1 0-1.414Z"
       clipRule="evenodd"
     />
   </svg>
 )
-
-const FinishedSvg = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={26}
-      height={26}
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="#00e61b"
-        fillRule="evenodd"
-        d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10Zm-5.97-3.03a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 2.235-2.236L14.97 8.97a.75.75 0 0 1 1.06 0Z"
-        clipRule="evenodd"
-      />
-    </svg>
-  )

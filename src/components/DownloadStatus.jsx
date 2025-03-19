@@ -6,9 +6,9 @@ import { CloseSvg } from '@/ui/icons'
 
 const Container = styled.div`
     position: fixed;
-    bottom: 1.3rem;
-    left: 1.3rem;
-    background-color:rgb(54, 76, 124);
+    bottom: 1.7rem;
+    left: 1.7rem;
+    background-color:rgb(32, 32, 32);
     border-radius: .400rem;
     padding: .930rem 1.2050rem;
     z-index: 1200;
@@ -59,7 +59,7 @@ const ButtonClose = styled.button`
     background-color: #fff;
     border-radius: 50%;
     border: none;
-    background-color: rgb(81, 116, 190);
+    background-color: rgb(73, 73, 73);
     cursor: pointer;
     transition: .300s;
     position: relative;

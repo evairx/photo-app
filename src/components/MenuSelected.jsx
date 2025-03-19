@@ -103,7 +103,7 @@ export default function MenuSelected() {
     
             const filename = progressData[i].filename;
     
-            const res = `http://192.168.1.2:3000/get?id=${file.userId}&album=${file.albumId}&file=${filename}`;
+            const res = `http://localhost:3000/get?id=${file.userId}&album=${file.albumId}&file=${filename}`;
             const encryptedBlob = await fetchWithProgress(res, i);
     
             const header = await new Promise((res, rej) => {

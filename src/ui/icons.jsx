@@ -8,28 +8,71 @@ export const CloseSvg = () => (
 )
 
 export const TrashSvg = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={26} height={26} fill="none">
-      <path
-        fill="#fff"
-        d="M16.25 4.333V3.25h-6.5v1.083H4.333V6.5h1.084v14.083c0 1.192.975 2.167 2.166 2.167h10.834a2.173 2.173 0 0 0 2.166-2.167V6.5h1.084V4.333H16.25Zm2.167 16.25H7.583V6.5h10.834v14.083ZM9.75 8.667h2.167v9.75H9.75v-9.75Zm4.333 0h2.167v9.75h-2.167v-9.75Z"
-      />
-    </svg>
-)
-
-export const VideoSvg = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={64}
-    height={64}
+    width={24}
+    height={24}
     fill="none"
-    viewBox="0 0 24 24"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={1.5}
+    className="icon icon-tabler icons-tabler-outline icon-tabler-trash"
   >
-    <path
-      fill="#fff"
-      fillRule="evenodd"
-      d="M12 7V2h-2c-2.828 0-4.243 0-5.121.879C4 3.757 4 5.172 4 8v8c0 2.828 0 4.243.879 5.121C5.757 22 7.172 22 10 22h4c2.828 0 4.243 0 5.121-.879C20 20.243 20 18.828 20 16v-6h-5.054c-.425 0-.837 0-1.176-.046-.384-.051-.821-.177-1.184-.54-.363-.363-.489-.8-.54-1.183C12 7.89 12 7.478 12 7.054V7Zm2 0V2.005c.412.01.684.042.937.147.368.152.657.442 1.235 1.02l2.656 2.656c.579.578.867.868 1.02 1.235.105.253.137.525.147.937H15c-.5 0-.774-.002-.964-.028h-.007l-.001-.008C14.002 7.774 14 7.5 14 7Zm-3.162 5.124 3.496 1.718c.888.436.888 1.88 0 2.316l-3.496 1.718c-.87.428-1.838-.304-1.838-1.39v-2.973c0-1.085.968-1.817 1.838-1.39Z"
-      clipRule="evenodd"
-    />
+    <path stroke="none" d="M0 0h24v24H0z" />
+    <path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+  </svg>
+)
+
+export const TrashSvgActive = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
+    <g fill="#fff" clipPath="url(#a)">
+      <path d="M20 6a1 1 0 0 1 .117 1.993L20 8h-.081L19 19a3 3 0 0 1-2.824 2.995L16 22H8c-1.598 0-2.904-1.249-2.992-2.75l-.005-.167L4.08 8H4a1 1 0 0 1-.117-1.993L4 6h16ZM14 2a2 2 0 0 1 2 2 1 1 0 0 1-1.993.117L14 4h-4l-.007.117A1 1 0 0 1 8 4a2 2 0 0 1 1.85-1.995L10 2h4Z" />
+    </g>
+    <defs>
+      <clipPath id="a">
+        <path fill="#fff" d="M0 0h24v24H0z" />
+      </clipPath>
+    </defs>
+  </svg>
+)
+
+export const VideoSvg = ({colorSvg}) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} fill="none">
+    <g
+      stroke={colorSvg}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+    >
+      <path d="m12.5 8.333 3.794-1.896a.833.833 0 0 1 1.206.745v5.636a.833.833 0 0 1-1.206.745L12.5 11.667V8.333Z" />
+      <path d="M2.5 6.667A1.667 1.667 0 0 1 4.167 5h6.666A1.666 1.666 0 0 1 12.5 6.667v6.666A1.666 1.666 0 0 1 10.833 15H4.167A1.667 1.667 0 0 1 2.5 13.333V6.667Z" />
+    </g>
+    <defs>
+      <clipPath id="a">
+        <path fill="#fff" d="M0 0h20v20H0z" />
+      </clipPath>
+    </defs>
+  </svg>
+)
+
+export const PhotoSvgUpload = ({colorSvg}) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} fill="none">
+    <g
+      stroke={colorSvg}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+    >
+      <path d="M12.5 6.667h.008M2.5 5A2.5 2.5 0 0 1 5 2.5h10A2.5 2.5 0 0 1 17.5 5v10a2.5 2.5 0 0 1-2.5 2.5H5A2.5 2.5 0 0 1 2.5 15V5Z" />
+      <path d="m2.5 13.333 4.167-4.166c.773-.744 1.726-.744 2.5 0l4.166 4.166" />
+      <path d="m11.667 11.667.833-.834c.773-.744 1.727-.744 2.5 0l2.5 2.5" />
+    </g>
+    <defs>
+      <clipPath id="a">
+        <path fill="#fff" d="M0 0h20v20H0z" />
+      </clipPath>
+    </defs>
   </svg>
 )
 
@@ -43,52 +86,198 @@ export const HiddenSvg = () => (
 )
 
 export const DownloadSvg = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
-    <path fill="#fff" d="M5 20h14v-2H5v2ZM19 9h-4V3H9v6H5l7 7 7-7Z" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={1.5}
+    className="icon icon-tabler icons-tabler-outline icon-tabler-download"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" />
+    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 4v12" />
   </svg>
 )
 
 export const FavoriteSvg = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
-    <path
-      fill="#fff"
-      d="M19.66 3.99c-2.64-1.8-5.9-.96-7.66 1.1-1.76-2.06-5.02-2.91-7.66-1.1-1.4.96-2.28 2.58-2.34 4.29-.14 3.88 3.3 6.99 8.55 11.76l.1.09c.76.69 1.93.69 2.69-.01l.11-.1c5.25-4.76 8.68-7.87 8.55-11.75-.06-1.7-.94-3.32-2.34-4.28ZM12.1 18.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05Z"
-    />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={1.5}
+    className="icon icon-tabler icons-tabler-outline icon-tabler-heart"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" />
+    <path d="M19.5 12.572 12 20l-7.5-7.428A5 5 0 1 1 12 6.006a5 5 0 1 1 7.5 6.572" />
   </svg>
 )
 
 export const PhotoSvg = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={26} height={26} fill="none">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={1.5}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" />
+    <path d="M15 8h.01M3 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6z" />
+    <path d="m3 16 5-5c.928-.893 2.072-.893 3 0l5 5" />
+    <path d="m14 14 1-1c.928-.893 2.072-.893 3 0l3 3" />
+  </svg>
+)
+
+export const PhotoActiveSvg = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
+    <g clipPath="url(#a)">
       <path
-      fill="#fff"
-      d="M20.583 3.25H5.417A2.173 2.173 0 0 0 3.25 5.417v15.166c0 1.192.975 2.167 2.167 2.167h15.166a2.173 2.173 0 0 0 2.167-2.167V5.417a2.173 2.173 0 0 0-2.167-2.167Zm0 17.333H5.417V5.417h15.166v15.166ZM15.167 13l-3.25 4.03-2.167-2.947-3.25 4.334h13L15.167 13Z"
+        fill="#fff"
+        d="M8.813 11.612c.457-.38.918-.38 1.386.011l.108.098 4.986 4.986.094.083a1 1 0 0 0 1.403-1.403l-.083-.094L15.415 14l.292-.293.106-.095c.457-.38.918-.38 1.386.011l.108.098 4.674 4.675a4 4 0 0 1-3.775 3.599L18 22H6a4 4 0 0 1-3.98-3.603l6.687-6.69.106-.095ZM18 2a4 4 0 0 1 3.995 3.8L22 6v9.585l-3.293-3.292-.15-.137c-1.256-1.095-2.85-1.097-4.096-.017l-.154.14-.307.306-2.293-2.292-.15-.137c-1.256-1.095-2.85-1.097-4.096-.017l-.154.14L2 15.585V6a4 4 0 0 1 3.8-3.995L6 2h12Zm-2.99 5-.127.007a1 1 0 0 0 0 1.986L15 9l.127-.007a1 1 0 0 0 0-1.986L15.01 7Z"
       />
+    </g>
+    <defs>
+      <clipPath id="a">
+        <path fill="#fff" d="M0 0h24v24H0z" />
+      </clipPath>
+    </defs>
   </svg>
 )
 
 export const AlbumSvg = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={26} height={26} fill="none">
-    <path
-      fill="#fff"
-      d="M19.5 2.167h-13a2.173 2.173 0 0 0-2.167 2.166v17.334c0 1.191.975 2.166 2.167 2.166h13a2.173 2.173 0 0 0 2.167-2.166V4.333A2.173 2.173 0 0 0 19.5 2.167Zm0 19.5h-13V4.333H13v7.584l2.708-2.037 2.709 2.037V4.333H19.5v17.334Zm-4.69-6.5 3.607 4.333H7.583l2.709-3.467 1.809 2.362 2.708-3.228Z"
-    />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={1.5}
+    className="icon icon-tabler icons-tabler-outline icon-tabler-library-photo"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" />
+    <path d="M7 5.667A2.667 2.667 0 0 1 9.667 3h8.666A2.667 2.667 0 0 1 21 5.667v8.666A2.667 2.667 0 0 1 18.333 17H9.667A2.667 2.667 0 0 1 7 14.333z" />
+    <path d="M4.012 7.26A2.005 2.005 0 0 0 3 8.997v10c0 1.1.9 2 2 2h10c.75 0 1.158-.385 1.5-1M17 7h.01" />
+    <path d="m7 13 3.644-3.644a1.21 1.21 0 0 1 1.712 0L16 13" />
+    <path d="m15 12 1.644-1.644a1.21 1.21 0 0 1 1.712 0L21 13" />
+  </svg>
+)
+
+export const AlbumActiveSvg  = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
+    <g clipPath="url(#a)">
+      <path
+        stroke="#fff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M4.012 7.26A2.005 2.005 0 0 0 3 8.997v10c0 1.1.9 2 2 2h10c.75 0 1.158-.385 1.5-1M17 7h.01"
+      />
+      <path
+        fill="#fff"
+        d="M11.11 10.209c.343-.285.688-.285 1.04.008l.08.074 3.74 3.74.07.061a.75.75 0 0 0 1.053-1.052l-.063-.07-.969-.97.22-.22.079-.071c.343-.285.688-.285 1.04.008l.08.074 3.506 3.506a3 3 0 0 1-2.832 2.7L18 18H9a3 3 0 0 1-2.985-2.702l5.015-5.018.08-.071ZM18 3a3 3 0 0 1 2.996 2.85L21 6v7.189l-2.47-2.47-.112-.102c-.942-.821-2.138-.823-3.072-.013l-.116.105-.23.23-1.72-1.72-.112-.102c-.942-.821-2.138-.823-3.072-.013l-.116.105L6 13.19V6a3 3 0 0 1 2.85-2.996L9 3h9Zm-2.242 3.75-.096.005a.75.75 0 0 0 0 1.49l.088.005.095-.005a.75.75 0 0 0 0-1.49l-.088-.005Z"
+      />
+    </g>
+    <defs>
+      <clipPath id="a">
+        <path fill="#fff" d="M0 0h24v24H0z" />
+      </clipPath>
+    </defs>
   </svg>
 )
 
 export const OcultSvg = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={1.5}
+    className="icon icon-tabler icons-tabler-outline icon-tabler-lock"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" />
+    <path d="M5 13a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6z" />
+    <path d="M11 16a1 1 0 1 0 2 0 1 1 0 0 0-2 0M8 11V7a4 4 0 1 1 8 0v4" />
+  </svg>
+)
+
+export const OcultSvgActive = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    fill="#fff"
+    className="icon icon-tabler icons-tabler-filled icon-tabler-lock"
+  >
+    <path fill="none" d="M0 0h24v24H0z" />
+    <path d="M12 2a5 5 0 0 1 5 5v3a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3V7a5 5 0 0 1 5-5m0 12a2 2 0 0 0-1.995 1.85L10 16a2 2 0 1 0 2-2m0-10a3 3 0 0 0-3 3v3h6V7a3 3 0 0 0-3-3" />
+  </svg>
+)
+
+
+export const CloudSvg = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={1.5}
+    className="icon icon-tabler icons-tabler-outline icon-tabler-cloud"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" />
+    <path d="M6.657 18C4.085 18 2 15.993 2 13.517c0-2.475 2.085-4.482 4.657-4.482.393-1.762 1.794-3.2 3.675-3.773 1.88-.572 3.956-.193 5.444 1 1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486 0 1.927-1.551 3.487-3.465 3.487H6.657" />
+  </svg>
+)
+
+export const SearchSvg = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} fill="none">
+    <g
+      stroke="#fff"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeOpacity={0.43}
+      strokeWidth={1.5}
+      clipPath="url(#a)"
+    >
+      <path d="M3 10a7 7 0 1 0 14 0 7 7 0 0 0-14 0ZM21 21l-6-6" />
+    </g>
+    <defs>
+      <clipPath id="a">
+        <path fill="#fff" d="M0 0h24v24H0z" />
+      </clipPath>
+    </defs>
+  </svg>
+)
+
+export const UserSvg = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={36} height={36} fill="none" opacity={0.73}>
     <path
       fill="#fff"
-      d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2ZM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6Zm9 14H6V10h12v10Zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2Z"
+      d="M17.567 35.135c9.61 0 17.568-7.975 17.568-17.568C35.135 7.957 27.16 0 17.55 0 7.957 0 0 7.957 0 17.567c0 9.593 7.974 17.568 17.567 17.568Zm0-11.712c-5.184 0-9.162 1.86-10.919 3.927a14.651 14.651 0 0 1-3.703-9.783c0-8.129 6.476-14.64 14.605-14.64 8.13 0 14.64 6.511 14.657 14.64a14.466 14.466 0 0 1-3.72 9.783c-1.74-2.067-5.736-3.927-10.92-3.927Zm0-2.928c3.324.035 5.908-2.79 5.908-6.493 0-3.479-2.601-6.355-5.908-6.355-3.306 0-5.924 2.876-5.907 6.355.017 3.703 2.6 6.459 5.907 6.493Z"
     />
   </svg>
 )
 
-export const CloudSvg = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={27} height={27} fill="none">
-    <path
-      fill="#fff"
-      d="m19.022 21.22-10.833-.042a5.97 5.97 0 0 1-5.936-5.982c.012-2.99 2.286-5.505 5.201-5.873a6.473 6.473 0 0 1 5.668-3.293c3.217.012 5.895 2.384 6.392 5.463a4.875 4.875 0 0 1 4.402 4.87 4.882 4.882 0 0 1-4.894 4.856ZM13.114 8.195a4.333 4.333 0 0 0-3.986 2.596l-.274.638-.693.008a3.802 3.802 0 0 0-3.741 3.767 3.796 3.796 0 0 0 3.777 3.806l10.833.041a2.708 2.708 0 1 0 .021-5.416l-1.625-.006.004-1.084a4.332 4.332 0 0 0-4.316-4.35Z"
-    />
-  </svg>
+export const SelectAll = () => (
+  <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-select-all"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 8m0 1a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1z" /><path d="M12 20v.01" /><path d="M16 20v.01" /><path d="M8 20v.01" /><path d="M4 20v.01" /><path d="M4 16v.01" /><path d="M4 12v.01" /><path d="M4 8v.01" /><path d="M4 4v.01" /><path d="M8 4v.01" /><path d="M12 4v.01" /><path d="M16 4v.01" /><path d="M20 4v.01" /><path d="M20 8v.01" /><path d="M20 12v.01" /><path d="M20 16v.01" /><path d="M20 20v.01" /></svg>
+)
+
+export const DeselectAll = () => (
+  <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-deselect"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 8h3a1 1 0 0 1 1 1v3" /><path d="M16 16h-7a1 1 0 0 1 -1 -1v-7" /><path d="M12 20v.01" /><path d="M16 20v.01" /><path d="M8 20v.01" /><path d="M4 20v.01" /><path d="M4 16v.01" /><path d="M4 12v.01" /><path d="M4 8v.01" /><path d="M8 4v.01" /><path d="M12 4v.01" /><path d="M16 4v.01" /><path d="M20 4v.01" /><path d="M20 8v.01" /><path d="M20 12v.01" /><path d="M20 16v.01" /><path d="M3 3l18 18" /></svg>
 )

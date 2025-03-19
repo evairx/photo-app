@@ -1,0 +1,40 @@
+{   
+    "menu": {
+        "upload": "Upload"
+    },
+    "sideMenu": {
+        "Home": {
+            "title": "Home",
+            "content": {
+                "Photos": "Photos"
+            }
+        },
+        "Collections": {
+            "title": "Collections",
+            "content": {
+                "Albums": "Albums",
+                "HiddenFolder": "Hidden Folder",
+                "Trash": "Trash"
+            }
+        },
+        "Storage": {
+            "of": "of",
+            "used": "used"
+        }
+    },
+    "login": {},
+    "twoFactor": {
+        "setup": {
+            "title": "Setup Two-factor",
+            "subtitle": {
+                "qr": "Scan the QR code with your authentication app",
+                "code": "Enter the code in your authentication app"
+            },
+            "errorText": "There was an error generating the QR."
+        },
+        "title": "Two-factor authentication",
+        "description": "Enter the 6-digit code sent to your authentication app",
+        "button": "Verify",
+        "errorTextCode": "Incorrect code. Please try again."
+    }
+}

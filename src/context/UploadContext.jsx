@@ -3,19 +3,17 @@ import React, { useState, createContext } from 'react';
 export const UploadContext = createContext();
 
 export const UploadProvider = ({ children }) => {
-  const [state, setState] = useState('');
-  const [progress, setProgress] = useState(0);
-  const [fileName, setFileName] = useState('');
-  const [uploadError, setUploadError] = useState(false);
-  const [finishedUpload , setFinishedUpload] = useState(false);
+  const [upload, setUpload] = useState({
+    state: false,
+    content: [],
+    filesProcessed: 0,
+    totalProgress: 0,
+    error: false
+  });
 
   return (
     <UploadContext.Provider value={{
-      state, setState,
-      progress, setProgress,
-      fileName, setFileName,
-      uploadError, setUploadError,
-      finishedUpload, setFinishedUpload
+      upload, setUpload
     }}>
       {children}
     </UploadContext.Provider>

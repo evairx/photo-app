@@ -1,20 +1,22 @@
-import { NavLink } from 'react-router-dom'
 import { useContext } from 'react'
 import { UploadContext } from '@/context/UploadContext'
 import { MenuContext } from '@/context/MenuContext'
 import { selectFile } from '@/services/SelectFile'
+import { useTranslation } from 'react-i18next';
 import useMediaQuery from '@/hook/useMediaQuery'
 import useCloseOutside from '@/hook/useCloseOutside'
 import * as Style from '@/ui/Menus/menu'
 
+import { SearchSvg, UserSvg } from '@/ui/icons'
+
 export default function Menu() {
     const [ref, open, setOpen] = useCloseOutside(false);
-    const { setState, setProgress, setFileName, setFinishedUpload } = useContext(UploadContext);
-    const { toggleOpen } = useContext(MenuContext);
+    const { setUpload } = useContext(UploadContext);
+    const { t } = useTranslation();
     const isMobile = useMediaQuery('(max-width: 1008px)');
 
     const handeUplaod = () => {
-        selectFile(setProgress,setState, setFileName, setFinishedUpload)
+        selectFile(setUpload)
         setOpen(false)
     }
 
@@ -22,27 +24,27 @@ export default function Menu() {
         <>
             <Style.Menu>
                 <Style.MenuContentLeft>
-                    {isMobile &&
-                        <Style.MenuButton onClick={toggleOpen}>
-                            <BarsSvg />
-                        </Style.MenuButton>
-                    }
-                    <h2>Logo</h2>
+                    <Style.LogoContent>
+                        <figure>
+                          <picture>
+                            <img src="/logo.webp" width={100} alt="Logo" />
+                          </picture>
+                        </figure>
+                        <Style.Slug>DEV VERSION</Style.Slug>
+                    </Style.LogoContent>
+                    {!isMobile && <Style.ContentSearch>
+                      <Style.SearchIcon>
+                        <SearchSvg />
+                      </Style.SearchIcon>
+                      <Style.Search type="text" placeholder="Buscar albums, fotos, etc..." />
+                    </Style.ContentSearch>}
                 </Style.MenuContentLeft>
                 <Style.MenuContent>
-                    {isMobile && 
-                        <Style.MenuButton>
-                            <SearchSvg/>
-                        </Style.MenuButton>
-                    }
-                    <Style.MenuButton onClick={() => setOpen(!open)}>
+                    <Style.UploadButton onClick={() => setOpen(!open)}>
                         <AddSvg/>
-                    </Style.MenuButton>
-                    <NavLink to="/settings" viewTransition>
-                        <Style.MenuButton>
-                            <ConfigSvg />
-                        </Style.MenuButton>
-                    </NavLink>
+                        <Style.UploadText>{t('menu.upload')}</Style.UploadText>
+                    </Style.UploadButton>
+                    <UserSvg/>
                 </Style.MenuContent>
             </Style.Menu>
             {open && <Style.SubMenu ref={ref}>
@@ -62,8 +64,17 @@ export default function Menu() {
 }
 
 const AddSvg = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
-      <path fill="#fff" d="M20 13h-7v7h-2v-7H4v-2h7V4h2v7h7v2Z" />
+    <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={22}
+    height={22}
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      fill="#fff"
+      d="M5.625 15a.75.75 0 0 0-1.5 0h1.5Zm-.75 1h-.75.75Zm14.4-1a.75.75 0 0 0-1.5 0h1.5Zm-6.984-9.539a.75.75 0 0 0-1.182-.922l1.182.922ZM7.21 9.54a.75.75 0 0 0 1.182.922L7.21 9.54Zm5.082-5a.75.75 0 0 0-1.182.922l1.182-.922Zm2.718 5.922a.75.75 0 0 0 1.182-.922l-1.182.922ZM12.45 5a.75.75 0 0 0-1.5 0h1.5Zm-1.5 11a.75.75 0 0 0 1.5 0h-1.5Zm-6.825-1v1h1.5v-1h-1.5Zm0 1c0 2.053 1.628 3.75 3.675 3.75v-1.5c-1.183 0-2.175-.99-2.175-2.25h-1.5ZM7.8 19.75h7.8v-1.5H7.8v1.5Zm7.8 0c2.047 0 3.675-1.697 3.675-3.75h-1.5c0 1.26-.992 2.25-2.175 2.25v1.5ZM19.275 16v-1h-1.5v1h1.5ZM11.109 4.539l-3.9 5 1.182.922 3.9-5-1.182-.922Zm0 .922 3.9 5 1.182-.922-3.9-5-1.182.922ZM10.95 5v11h1.5V5h-1.5Z"
+    />
     </svg>
 )
 
@@ -81,26 +92,6 @@ const PhotosSvg = () => (
       <path
         fill="#fff"
         d="M20 4v12H8V4h12Zm0-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2ZM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2Zm13.67 5-2.5 2.98-1.67-2.18L9 15h10l-3.33-4Z"
-      />
-    </svg>
-)
-
-const ConfigSvg = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
-      <path
-        fill="#fff"
-        d="M13.85 22.25h-3.7c-.74 0-1.36-.54-1.45-1.27l-.27-1.89c-.27-.14-.53-.29-.79-.46l-1.8.72c-.7.26-1.47-.03-1.81-.65L2.2 15.53c-.35-.66-.2-1.44.36-1.88l1.53-1.19c-.01-.15-.02-.3-.02-.46 0-.15.01-.31.02-.46l-1.52-1.19c-.59-.45-.74-1.26-.37-1.88l1.85-3.19c.34-.62 1.11-.9 1.79-.63l1.81.73c.26-.17.52-.32.78-.46l.27-1.91c.09-.7.71-1.25 1.44-1.25h3.7c.74 0 1.36.54 1.45 1.27l.27 1.89c.27.14.53.29.79.46l1.8-.72c.71-.26 1.48.03 1.82.65l1.84 3.18c.36.66.2 1.44-.36 1.88l-1.52 1.19c.01.15.02.3.02.46 0 .16-.01.31-.02.46l1.52 1.19c.56.45.72 1.23.37 1.86l-1.86 3.22c-.34.62-1.11.9-1.8.63l-1.8-.72c-.26.17-.52.32-.78.46l-.27 1.91c-.1.68-.72 1.22-1.46 1.22Zm-3.17-1.55v.02c.01 0 .01-.01 0-.02Zm-.06-.45h2.76l.37-2.55.53-.22c.44-.18.88-.44 1.34-.78l.45-.34 2.38.96 1.38-2.4-2.03-1.58.07-.56c.03-.26.06-.51.06-.78s-.03-.53-.06-.78l-.07-.56 2.03-1.58-1.39-2.4-2.39.96-.45-.35c-.42-.32-.87-.58-1.33-.77l-.52-.22-.37-2.55h-2.76l-.37 2.55-.53.21c-.44.19-.88.44-1.34.79l-.45.33-2.38-.95-1.39 2.39 2.03 1.58-.07.56a7 7 0 0 0-.06.79c0 .26.02.53.06.78l.07.56-2.03 1.58 1.38 2.4 2.39-.96.45.35c.43.33.86.58 1.33.77l.53.22.38 2.55Zm7.6-2.53c0 .01-.01.02-.01.03l.01-.03Zm-12.45-.01.01.02c0-.01-.01-.02-.01-.02ZM18.22 6.27c0 .01.01.02.01.02l-.01-.02ZM5.79 6.25l-.01.02s.01-.01.01-.02Z"
-      />
-      <path fill="#fff" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
-    </svg>
-)
-
-
-const SearchSvg = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} fill="none">
-      <path
-        fill="#fff"
-        d="m20.49 19-5.73-5.73C15.53 12.2 16 10.91 16 9.5A6.5 6.5 0 1 0 9.5 16c1.41 0 2.7-.47 3.77-1.24L19 20.49 20.49 19ZM5 9.5C5 7.01 7.01 5 9.5 5S14 7.01 14 9.5 11.99 14 9.5 14 5 11.99 5 9.5Z"
       />
     </svg>
 )

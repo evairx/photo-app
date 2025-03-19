@@ -1,0 +1,40 @@
+{
+    "menu": {
+        "upload": "Subir"
+    },
+    "sideMenu": {
+        "Home": {
+            "title": "Principal",
+            "content": {
+                "Photos": "Fotos"
+            }
+        },
+        "Collections": {
+            "title": "Colecciones",
+            "content": {
+                "Albums": "Álbumes",
+                "HiddenFolder": "Carpeta oculta",
+                "Trash": "Papelera"
+            }
+        },
+        "Storage": {
+            "of": "de",
+            "used": "usado"
+        }
+    },
+    "login": {},
+    "twoFactor": {
+        "setup": {
+            "title": "Configuración de dos factores",
+            "subtitle": {
+                "qr": "Escanee el código QR con su aplicación de autenticación",
+                "code": "Ingrese el código en su aplicación de autenticación"
+            },
+            "errorText": "Hubo un error al generar el código QR."
+        },
+        "title": "Autenticación de dos factores",
+        "description": "Ingresa el código de 6 dígitos enviado a su aplicación de autenticación",
+        "button": "Verificar",
+        "errorTextCode": "Código incorrecto. Por favor, inténtelo de nuevo."
+    }
+}

@@ -53,54 +53,110 @@ self.onmessage = async (event) => {
                     self.postMessage({ type: 'error', error: error.message });
                 }
                 break;
-            case 'decryptFile':
-                try {
-                    const { encryptedBlob, key, header } = data;
-
-                    const progressHandler = (progress) => {
-                        self.postMessage({ 
-                            type: 'decryptProgress', 
-                            data: { progress } 
-                        });
-                    };
-                    
-                    const decryptedFile = await libsodium.decryptFile(encryptedBlob, key, header, progressHandler);
-                    self.postMessage({ type: 'decryptFile', data: decryptedFile });
-                } catch (error) {
-                    console.log('worker error:', error);
-                    self.postMessage({ type: 'error', error: error.message });
-                }
-                break;
-            case 'encryptFile':
-                try {
-                    const { file, fileKey } = data;
-                    const reader = new FileReader();
-
-                    reader.onload = async function () {
+                case 'decryptFile':
+                    try {
+                        const { encryptedBlob, key, header } = data;
+    
                         const progressHandler = (progress) => {
                             self.postMessage({ 
-                                type: 'encryptProgress', 
+                                type: 'decryptProgress', 
                                 data: { progress } 
                             });
                         };
                         
-                        const data = await libsodium.encryptFile(
-                            file, 
-                            fileKey, 
-                            progressHandler
-                        );
-
-                        self.postMessage({ 
-                            type: 'encryptFile', 
-                            data: data 
-                        });
-                    };
-
-                    reader.readAsArrayBuffer(file);
-                } catch (error) {
-                    console.log('worker error:', error);
-                    self.postMessage({ type: 'error', error: error.message });
-                }
+                        const decryptedFile = await libsodium.decryptFile(encryptedBlob, key, header, progressHandler);
+                        self.postMessage({ type: 'decryptFile', data: decryptedFile });
+                    } catch (error) {
+                        console.log('worker error:', error);
+                        self.postMessage({ type: 'error', error: error.message });
+                    }
+                    break;
+            case 'encryptFile':
+                    try {
+                        const { file, fileId, fileKey } = data;
+                        const CHUNK_SIZE = 1024 * 1024 * 4; // 4MB chunks
+                        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                        const reader = new FileReader();
+                        let offset = 0;
+                        let encryptionState = null;
+                        let header = null;
+                        let processedChunks = 0;
+                
+                        const readNextChunk = () => {
+                            if (processedChunks >= totalChunks) {
+                                console.log(`All chunks processed: ${processedChunks}/${totalChunks}`);
+                                self.postMessage({
+                                    type: 'encryptFile',
+                                    data: {
+                                        header,
+                                        fileId,
+                                        totalChunks
+                                    }
+                                });
+                                return;
+                            }
+                
+                            const slice = file.slice(offset, Math.min(offset + CHUNK_SIZE, file.size));
+                            reader.readAsArrayBuffer(slice);
+                        };
+                
+                        reader.onload = async function (e) {
+                            try {
+                                const chunk = new Uint8Array(e.target.result);
+                                const chunkNumber = processedChunks;
+                                const isFinal = chunkNumber === totalChunks - 1;
+                                
+                                const progressHandler = (progress) => {
+                                    self.postMessage({ 
+                                        type: 'encryptProgress', 
+                                        data: { progress } 
+                                    });
+                                };
+                
+                                const result = await libsodium.encryptFile(
+                                    chunk,
+                                    fileKey,
+                                    fileId,
+                                    chunkNumber,
+                                    totalChunks,
+                                    isFinal,
+                                    encryptionState,
+                                    progressHandler
+                                );
+                
+                                if (chunkNumber === 0) {
+                                    encryptionState = result.state;
+                                    header = result.header;
+                                } else {
+                                    encryptionState = result.state;
+                                }
+                
+                                offset += CHUNK_SIZE; // Asegura que no haya saltos en la lectura
+                                processedChunks++;
+                                readNextChunk();
+                            } catch (error) {
+                                console.error(`Encryption error on chunk ${processedChunks}:`, error);
+                                self.postMessage({
+                                    type: 'error',
+                                    error: `Encryption error: ${error.message}`
+                                });
+                            }
+                        };
+                
+                        reader.onerror = (error) => {
+                            console.error('File reading error:', error);
+                            self.postMessage({
+                                type: 'error',
+                                error: `File reading error: ${error}`
+                            });
+                        };
+                
+                        // Iniciar la lectura del primer chunk
+                        readNextChunk();
+                    } catch (error) {
+                        console.error('Worker error:', error);
+                        self.postMessage({ type: 'error', error: error.message });
+                    }
                 break;
             case 'encryptedThumbnail':
                 try {

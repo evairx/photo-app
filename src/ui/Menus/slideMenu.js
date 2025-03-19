@@ -1,24 +1,52 @@
 import styled from "@emotion/styled";
 
 export const Menu = styled.aside`
-    background-color: #101726;
-    padding: 2.1rem .800rem;
-    min-width: ${({ isMobile, open }) => isMobile ? open ? '265px': '60px' : '265px'};
-    position: ${({ isMobile }) => isMobile ? 'absolute' : 'relative'};
-    ${({ open, isMobile }) => isMobile && open && `
-       box-shadow: 10px 0px 13px -10px rgba(0, 0, 0, 0.75), 0px 0px 10px 0px rgba(0,0,0,0);
-    `}
+    background-color: #121212;
+    padding: 1rem .800rem;
+    min-width: ${({ isOpen }) =>  isOpen ? '265px': '100px'};
     z-index: 999;
-    height: 91.5dvh;
+    border-radius: .600rem;
+    height: 87.5dvh;
     display: flex;
     flex-direction: column;
-    transition: all .2s ease-in-out;
     z-index: 1002;
 `;
 
-export const Space = styled.div`
-    min-width: 75px;
-    height: 91.5dvh;
+export const Header = styled.div`
+    display: flex;
+    justify-content: ${({ isOpen }) => isOpen ? 'flex-end': 'center'};
+    align-items: center;
+    margin-bottom: ${({ isOpen }) => isOpen ? '0': '1.650rem'};
+`
+
+export const ButtonSlide = styled.button`
+    width: 32px;
+    height: 32px;
+    padding: 1.2rem;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all .3s ease-in-out;
+    border-radius: 10px;
+    background-image: ${({ isOpen }) => isOpen ? 
+        `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' class='icon icon-tabler icons-tabler-outline icon-tabler-layout-sidebar-left-collapse'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z' /%3E%3Cpath d='M9 4v16' /%3E%3Cpath d='M15 10l-2 2l2 2' /%3E%3C/svg%3E")` 
+        : 
+        `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='%23fff' class='icon icon-tabler icons-tabler-filled icon-tabler-layout-sidebar-right-collapse'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M18 3a3 3 0 0 1 2.995 2.824l.005 .176v12a3 3 0 0 1 -2.824 2.995l-.176 .005h-12a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-12a3 3 0 0 1 2.824 -2.995l.176 -.005h12zm-3 2h-9a1 1 0 0 0 -.993 .883l-.007 .117v12a1 1 0 0 0 .883 .993l.117 .007h9v-14zm-5.387 4.21l.094 .083l2 2a1 1 0 0 1 .083 1.32l-.083 .094l-2 2a1 1 0 0 1 -1.497 -1.32l.083 -.094l1.292 -1.293l-1.292 -1.293a1 1 0 0 1 -.083 -1.32l.083 -.094a1 1 0 0 1 1.32 -.083z' /%3E%3C/svg%3E")`};
+    bcakground-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    &:hover {
+        background-image: ${({ isOpen}) => isOpen && `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='%23fff' class='icon icon-tabler icons-tabler-filled icon-tabler-layout-sidebar-left-collapse'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M18 3a3 3 0 0 1 2.995 2.824l.005 .176v12a3 3 0 0 1 -2.824 2.995l-.176 .005h-12a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-12a3 3 0 0 1 2.824 -2.995l.176 -.005h12zm0 2h-9v14h9a1 1 0 0 0 .993 -.883l.007 -.117v-12a1 1 0 0 0 -.883 -.993l-.117 -.007zm-2.293 4.293a1 1 0 0 1 .083 1.32l-.083 .094l-1.292 1.293l1.292 1.293a1 1 0 0 1 .083 1.32l-.083 .094a1 1 0 0 1 -1.32 .083l-.094 -.083l-2 -2a1 1 0 0 1 -.083 -1.32l.083 -.094l2 -2a1 1 0 0 1 1.414 0z' /%3E%3C/svg%3E")`};
+    }
+`
+
+export const Title = styled.p`
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.250rem;
+    display: ${({ isOpen }) => isOpen ? 'block': 'none'};
 `
 
 export const ButtonContainer = styled.div`
@@ -35,10 +63,10 @@ export const Button = styled.div`
     border-radius: 1.600rem;
     cursor: pointer;
     transition: all .3s ease-in-out;
-    background-color: ${({ active }) => active ? 'rgba(29, 100, 181, 0.5)' : 'transparent'};
+    background-color: ${({ active }) => active ? 'rgba(255, 255, 255, 0.16)' : 'transparent'};
 
     &:hover {
-        background-color: rgba(29, 100, 181, 0.5);
+        background-color: rgba(255, 255, 255, 0.09);
     }
 `
 
@@ -46,7 +74,7 @@ export const ButtonText = styled.p`
     color: #fff;
     font-size: 1.050rem;
     font-weight: 600;
-    display: ${({ isMobile, open }) => !open && isMobile ? 'none' : 'block'};
+    display: ${({ open }) => !open && 'none'};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -62,30 +90,27 @@ export const TitleCollection = styled.p`
 export const ContentButton = styled.div`
     margin-top: auto;
     padding-bottom: 1rem;
-    padding: ${({ isMobile, open }) => isMobile ? open ? '.600rem': '0' : '0 .600rem'};
-    
-    ${({ isMobile, open }) => isMobile && !open && `
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    `} 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .500rem;
+    padding: ${({ open }) =>  open ? '.600rem': '.400rem 0'};
 `;
 
 export const BarStorageContent = styled.div`
     width: 100%;
     height: .300rem;
-    background-color: #838383;
+    background-color: #2B2B2B;
     border-radius: 1rem;
     margin-top: .400rem;
     position: relative;
-    display: ${({ isMobile, open }) => isMobile ? open ? 'block' : 'none' : 'block'};
+    display: ${({ open }) => open ? 'block' : 'none'};
 `
 
 export const BarProgress = styled.div`
     width: ${({ percentage }) => `${Math.min(percentage, 100)}%`};
     height: 100%;
-    background-color: ${({ percentage }) => percentage > 95 ? 'rgb(250, 62, 62)' : ' #1D64B5'};
+    background-color: ${({ percentage }) => percentage > 95 ? 'rgb(250, 62, 62)' : 'rgb(255, 255, 255)'};
     border-radius: 1rem;
     position: absolute;
     top:0;
@@ -104,7 +129,7 @@ export const TextStorage = styled.p`
     font-size: .900rem;
     font-weight: 400;
     margin-top: .400rem;
-    display: ${({ isMobile, open }) => isMobile ? open ? 'block' : 'none' : 'block'};
+    display: ${({ open }) =>  open ? 'block' : 'none'};
 `
 
 export const Bar = styled.div`
@@ -112,6 +137,9 @@ export const Bar = styled.div`
     height: .150rem;
     border-radius: 20px;
     background-color: #838383;
-    margin-top: ${({ isMobile }) => isMobile ? '' : '2.200rem'};
-    margin-bottom: ${({ isMobile }) => isMobile ? '1.800rem' : '2.200rem'};
+
+    @media (max-width: 1008px) {
+        margin-top: 0;
+        margin-bottom: 1.800rem;
+    }
 `

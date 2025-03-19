@@ -6,6 +6,7 @@
  */
 import sodium from 'libsodium-wrappers-sumo';
 
+
 /**
  * Converts a base64-encoded string to a Uint8Array using libsodium's `from_base64` function.
  * @param {string} data - The base64-encoded string to be converted to a Uint8Array.
@@ -27,12 +28,12 @@ export const toBase64 = async (uint8Array) => {
 }
 
 /**
- * Generates a random key using the XChaCha20-Poly1305 algorithm.
+ * Generates a new encryption key.
  * @returns {Promise<Uint8Array>} The generated key as a Uint8Array.
  */
 export const generateKey = async () => {
     await sodium.ready;
-    return sodium.crypto_secretstream_xchacha20poly1305_keygen()
+    return sodium.crypto_secretstream_xchacha20poly1305_keygen();
 }
 
 /**
@@ -44,6 +45,7 @@ export const generateKey = async () => {
  */
 export const encryptText = async (key, text) => {
     await sodium.ready;
+    console.log(text)
     const keyArray = new Uint8Array(key);
     const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(keyArray);
     const encryptedData = sodium.crypto_secretstream_xchacha20poly1305_push(
@@ -52,68 +54,165 @@ export const encryptText = async (key, text) => {
         null,
         sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
     );
-    return sodium.to_base64(new Uint8Array([...header, ...encryptedData]));
+    return sodium.to_base64(new Uint8Array([...header, ...encryptedData]), sodium.base64_variants.ORIGINAL);
 };
 
-/**
- * Decrypt strings using the decryptText(key, "3rtd-_1IPHbblT_j8Z9...") function,
- * using the XChaCha20-Poly1305 algorithm from libsodium.
- * @param {Uint8Array} key - The key used to decrypt the text base64.
- * @param {string} encryptedText - The encrypted text to be decrypted.
- * @returns {Promise<string>} The decrypted text.
- */
+
 export const decryptText = async (key, encryptedText) => {
     await sodium.ready;
     const keyArray = new Uint8Array(key);
-    const encryptedData = sodium.from_base64(encryptedText);
-    const header = encryptedData.slice(0, sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES);
-    const data = encryptedData.slice(sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES);
+    const encryptedDataWithHeader = sodium.from_base64(encryptedText, sodium.base64_variants.ORIGINAL);
+    
+    // Extraemos el header (nonce) y los datos cifrados
+    const header = encryptedDataWithHeader.slice(0, sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES);
+    const encryptedData = encryptedDataWithHeader.slice(sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES);
+    
+    // Inicializamos el estado de desencriptación
     const state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(header, keyArray);
-    const { message, tag } = sodium.crypto_secretstream_xchacha20poly1305_pull(state, data, null);
+    
+    // Desencriptamos los datos
+    const { message, tag } = sodium.crypto_secretstream_xchacha20poly1305_pull(state, encryptedData, null);
+    
     if (tag !== sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL) {
-        throw new Error('El texto no contiene la etiqueta FINAL esperada.');
+        throw new Error("El mensaje no tiene un TAG_FINAL válido, la desencriptación podría estar incompleta o corrupta.");
     }
+    
     return new TextDecoder().decode(message);
-}
+};
+
+
+const sendChunk = async (chunk, chunkNumber, totalChunks, fileId, delay = 0) => {
+    const formData = new FormData();
+    
+    // Enhanced chunk info with size information
+    const chunkInfo = {
+        chunk_number: chunkNumber === -1 ? 0 : chunkNumber + 1, // Adjust numbering to start at 1, header at 0
+        total_chunks: totalChunks,
+        file_id: fileId,
+        chunk_size: chunk.length,
+        is_final: chunkNumber === totalChunks - 1,
+        is_header: chunkNumber === -1 // Use this to identify header chunk
+    };
+
+    console.log(`Uploading chunk ${chunkInfo.chunk_number}/${totalChunks}...`);
+    
+    formData.append('chunk_info', JSON.stringify(chunkInfo));
+    formData.append('chunk', new Blob([chunk]), `${fileId}_${chunkInfo.chunk_number}`);
+
+    try {
+        // Esperar antes de subir el chunk para reducir la carga en el servidor
+       // await new Promise(resolve => setTimeout(resolve, delay));
+
+        const response = await fetch('http://localhost:8080/multipart', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-File-Id': fileId,
+                'X-Chunk-Number': chunkInfo.chunk_number.toString(),
+                'X-Total-Chunks': totalChunks.toString()
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.status !== 'success') {
+            throw new Error(result.message || 'Upload failed');
+        }
+
+        return {
+            ...result,
+            chunkNumber: chunkInfo.chunk_number,
+            totalChunks,
+            isComplete: result.path !== null
+        };
+    } catch (error) {
+        console.error(`Chunk upload failed (${chunkNumber}/${totalChunks}):`, error);
+        throw new Error(`Failed to upload chunk ${chunkNumber}: ${error.message}`);
+    }
+};
 
 /**
- *  This function is used to encrypt files, but is being used for photos and videos using 4MB Chunks,
- *  passing the @file parameter, @key and the @progressCallback function. 
- *  This will return the blob and header file already encrypted.
- *  
- *  @param {File} file - The file to be encrypted.
- *  @param {Uint8Array} key - The key used to encrypt the file.
- *  @param {function} progressCallback - A callback function to follow the progress of encryption from web worker.
- *  @returns {Promise<{ encryptedBlob: Blob, header: Uint8Array }>} The encrypted file as a Blob and the header as a Uint8Array.
+ * This function is used to encrypt files, but is being used for photos and videos using 4MB Chunks,
+ * passing the @file parameter, @key and the @progressCallback function. 
+ * This will return the blob and header file already encrypted.
+ * 
+ * @param {Uint8Array} chunk - The current chunk to encrypt
+ * @param {Uint8Array} fileKey - The key used to encrypt the file
+ * @param {string} fileId - Unique identifier for the file
+ * @param {string} fileType - MIME type of the file
+ * @param {number} chunkNumber - Current chunk number
+ * @param {number} totalChunks - Total number of chunks
+ * @param {boolean} isFinal - Whether this is the final chunk
+ * @param {Object} state - Encryption state object
+ * @param {function} progressCallback - Progress callback function
+ * @returns {Promise<{ state: Object, header?: Uint8Array }>} Encryption state and header (for first chunk)
  */
-export const encryptFile = async (file, key, progressCallback) => {
+export const encryptFile = async (chunk, fileKey, fileId, chunkNumber, totalChunks, isFinal, state, progressCallback) => {
     await sodium.ready;
-    const chunkSize = 1024 * 1024 * 4
-    const totalChunks = Math.ceil(file.size / chunkSize);
-    const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(key);
-    const encryptedChunks = [header]; 
-  
-    for (let i = 0; i < totalChunks; i++) {
-        const start = i * chunkSize;
-        const end = Math.min(start + chunkSize, file.size);
-        const chunk = file.slice(start, end);
-        const arrayBuffer = await chunk.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-  
-        const tag = i === totalChunks - 1
+    try {
+        // Initialize encryption for first chunk (chunk 0)
+        if (chunkNumber === 0) {
+            const initResult = sodium.crypto_secretstream_xchacha20poly1305_init_push(fileKey);
+            state = initResult.state;
+
+            // Send header as special chunk (will be chunk 0)
+            await sendChunk(initResult.header, -1, totalChunks, fileId);
+            // Process first chunk immediately as chunk 1
+            const tag = totalChunks === 1 
+                ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+                : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE;
+
+            const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(
+                state,
+                chunk,
+                null,
+                tag
+            );
+
+            // Send first data chunk
+            await sendChunk(encryptedChunk, 0, totalChunks, fileId);
+            return {
+                state,
+                header: initResult.header
+            };
+        }
+
+        // Skip empty chunks
+        if (chunk.length === 0) {
+            console.warn(`Skipping empty chunk: ${chunkNumber}/${totalChunks}`);
+            return { state };
+        }
+
+        // Determine tag for subsequent chunks
+        const tag = isFinal 
             ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
             : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE;
-  
-        const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(state, uint8Array, null, tag);
-        encryptedChunks.push(encryptedChunk);
 
-        const progress = Math.floor(((i + 1) / totalChunks) * 90);
-        if (progressCallback && typeof progressCallback === 'function') {
-            progressCallback(progress);
-        }
+        // Encrypt the chunk
+        const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(
+            state,
+            chunk,
+            null,
+            tag
+        );
+
+        // Send encrypted chunk
+        await sendChunk(encryptedChunk, chunkNumber, totalChunks, fileId);
+
+        // Calculate and report progress
+        const progress = Math.floor((chunkNumber / totalChunks) * 100);
+        progressCallback?.(progress);
+
+        return { state };
+    } catch (error) {
+        console.error('Chunk encryption failed:', error);
+        throw new Error(`Encryption failed: ${error.message}`);
     }
-  
-    return { encryptedBlob: new Blob(encryptedChunks, { type: file.type }), header };
 };
 
 /**
@@ -169,6 +268,7 @@ export const decryptFile = async (encryptedBlob, key, header, progressCallback) 
     return URL.createObjectURL(blob);
 };
 
+
 export const encryptedThumbnail = async (thumbnailUint8Array, key) => {
     await sodium.ready;
     const { state: thumbnailState, header: thumbnailHeader } = sodium.crypto_secretstream_xchacha20poly1305_init_push(key);
@@ -213,20 +313,20 @@ export const decryptThumbnail = async (uint8Array, key) => {
     }
 
     const blob = new Blob([message]);
-    return URL.createObjectURL(blob);
+    return blob;
 }
 
 export const generateMasterKey = async () => {
     await sodium.ready;
     const masterKeyBytes = sodium.randombytes_buf(sodium.crypto_secretbox_KEYBYTES);
-    const masterKeyBase64 = sodium.to_base64(masterKeyBytes);
+    const masterKeyBase64 = sodium.to_base64(masterKeyBytes, sodium.base64_variants.ORIGINAL);
     return { masterKeyBase64, masterKeyBytes };
 }
 
 export const generateRecoveryKey = async () => {
     await sodium.ready;
     const recoveryKeyBytes = sodium.randombytes_buf(sodium.crypto_secretbox_KEYBYTES);
-    const recoveryKeyBase64 = sodium.to_base64(recoveryKeyBytes);
+    const recoveryKeyBase64 = sodium.to_base64(recoveryKeyBytes, sodium.base64_variants.ORIGINAL);
     return { recoveryKeyBase64, recoveryKeyBytes };
 }
 

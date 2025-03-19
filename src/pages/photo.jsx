@@ -95,7 +95,7 @@ const Photo = () => {
                 libsodiumRef.current.postMessage({ type: 'decryptText', data: { key, encryptedText: file.name } });
             });
     
-            const response = await fetch(`http://192.168.1.2:3000/get?id=${file.userId}&album=${file.albumId}&file=${nameFile}`);
+            const response = await fetch(`http://localhost:3000/get?id=${file.userId}&album=${file.albumId}&file=${file.id}`);
     
             if (response.ok) {
                 const reader = response.body.getReader();

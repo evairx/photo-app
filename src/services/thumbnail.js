@@ -44,11 +44,19 @@ export const generateThumbnailFFmpeg = async (ffmpeg, fetchFile, file) => {
 }
 
 export const generateThumbnailCanvas = async (file) => {
-    console.log('[canvas]: using canvas to generate thumbnail');
+    console.log('[canvas]: Using canvas to generate thumbnail');
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d', { willReadFrequently: true });
     canvas.width = 200;
     canvas.height = 200;
+
+    let progress = 0;
+    const updateProgress = (value) => {
+        progress = value;
+        console.log(`[canvas]: Progress ${progress}%`);
+    };
+
+    updateProgress(10);
 
     if (isVideo(file)) {
         const video = document.createElement('video');
@@ -87,12 +95,14 @@ export const generateThumbnailCanvas = async (file) => {
                         let sourceY = 0;
 
                         if (aspectRatio > 1) {
-                            sourceWidth = sourceHeight * (200/200);
+                            sourceWidth = sourceHeight;
                             sourceX = (video.videoWidth - sourceWidth) / 2;
                         } else {
-                            sourceHeight = sourceWidth / (200/200);
+                            sourceHeight = sourceWidth;
                             sourceY = (video.videoHeight - sourceHeight) / 2;
                         }
+
+                        updateProgress(50);
                         context.clearRect(0, 0, 200, 200);
                         context.drawImage(
                             video,
@@ -104,6 +114,7 @@ export const generateThumbnailCanvas = async (file) => {
                         
                         hasResolved = true;
                         cleanupVideo();
+                        updateProgress(70);
                         resolve();
                     } catch (error) {
                         cleanupVideo();
@@ -112,10 +123,7 @@ export const generateThumbnailCanvas = async (file) => {
                 }
             };
 
-            video.onloadeddata = () => {
-                video.currentTime = 1;
-            };
-
+            video.onloadeddata = () => { video.currentTime = 1; };
             video.onseeked = processFrame;
             video.oncanplay = processFrame;
 
@@ -123,8 +131,6 @@ export const generateThumbnailCanvas = async (file) => {
                 cleanupVideo();
                 reject(new Error(`Video error: ${video.error?.message || 'Unknown error'}`));
             };
-
-            video.load();
         });
     } else {
         const img = new Image();
@@ -146,13 +152,14 @@ export const generateThumbnailCanvas = async (file) => {
                     let sourceY = 0;
 
                     if (aspectRatio > 1) {
-                        sourceWidth = sourceHeight * (200/200);
+                        sourceWidth = sourceHeight;
                         sourceX = (img.width - sourceWidth) / 2;
                     } else {
-                        sourceHeight = sourceWidth / (200/200);
+                        sourceHeight = sourceWidth;
                         sourceY = (img.height - sourceHeight) / 2;
                     }
 
+                    updateProgress(50);
                     context.clearRect(0, 0, 200, 200);
                     context.drawImage(
                         img,
@@ -164,6 +171,7 @@ export const generateThumbnailCanvas = async (file) => {
                     
                     URL.revokeObjectURL(img.src);
                     clearTimeout(timeoutId);
+                    updateProgress(70);
                     resolve();
                 } catch (error) {
                     URL.revokeObjectURL(img.src);
@@ -189,6 +197,9 @@ export const generateThumbnailCanvas = async (file) => {
             canvas.toBlob(
                 (blob) => {
                     if (blob) {
+                        updateProgress(100);
+                        const blobURL = URL.createObjectURL(blob);
+                        console.log(`[canvas]: Thumbnail generated: ${blobURL}`);
                         resolve(blob);
                     } else {
                         reject(new Error('Failed to create thumbnail blob'));
@@ -202,6 +213,7 @@ export const generateThumbnailCanvas = async (file) => {
         }
     });
 };
+
 
 const isVideo = (file) => {
     return file.type.startsWith('video/');

@@ -6,7 +6,7 @@ export const MenuSelected = styled.nav`
     align-items: center;
     padding: 0 1.600rem;
     color: #fff;
-    height: 4rem;
+    height: 5rem;
     top: 0;
     width: 100%;
     transition: all .2s ease-in-out;
