@@ -268,6 +268,96 @@ export const decryptFile = async (encryptedBlob, key, header, progressCallback) 
     return URL.createObjectURL(blob);
 };
 
+export async function decryptWithChunks(data, state, key, header, baseChunkSize, isFinal) {
+    await sodium.ready;
+    const HEADERBYTES = sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES;
+    const ABYTES = sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
+    const chunks = [];
+    let bytesProcessed = 0;
+    let currentData = data;
+    let foundFinalTag = false;
+
+    try {
+        if (!(data instanceof Uint8Array)) {
+            throw new Error("Invalid data format: expected Uint8Array");
+        }
+        if (!state) {
+            if (!(header instanceof Uint8Array)) {
+                throw new Error("Invalid header format: expected Uint8Array");
+            }
+
+            if (header.length !== HEADERBYTES) {
+                throw new Error(`Header length mismatch: expected ${HEADERBYTES}, got ${header.length}`);
+            }
+
+            if (currentData.length >= HEADERBYTES) {
+                const extractedHeader = currentData.slice(0, HEADERBYTES);
+                if (!sodium.memcmp(header, extractedHeader)) {
+                    throw new Error("Header mismatch!");
+                }
+                currentData = currentData.slice(HEADERBYTES);
+            } else {
+                throw new Error("Data does not contain enough bytes for the header");
+            }
+
+            state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key);
+        }
+
+        const chunkSize = baseChunkSize + ABYTES;
+
+        while (currentData.length >= chunkSize) {
+            const chunk = currentData.slice(0, chunkSize);
+
+            try {
+                const decryptedResult = sodium.crypto_secretstream_xchacha20poly1305_pull(state, chunk, null);
+
+                if (!decryptedResult || !decryptedResult.message) {
+                    throw new Error("Invalid decryption result");
+                }
+
+                chunks.push(decryptedResult.message);
+                bytesProcessed += decryptedResult.message.byteLength;
+                currentData = currentData.slice(chunkSize);
+
+                if (decryptedResult.tag === sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL) {
+                    foundFinalTag = true;
+                    console.log("[Libsodium] Found final tag");
+                    break;
+                }
+            } catch (error) {
+                console.error("[Libsodium] Error al procesar chunk:", { error, chunkLength: chunk.length, isFinal });
+                throw new Error(`Chunk processing failed: ${error.message}`);
+            }
+        }
+
+        if (!foundFinalTag && isFinal && currentData.length > 0) {
+            try {
+                const finalResult = sodium.crypto_secretstream_xchacha20poly1305_pull(state, currentData, null);
+                
+                if (finalResult && finalResult.message) {
+                    chunks.push(finalResult.message);
+                    bytesProcessed += finalResult.message.byteLength;
+                    foundFinalTag = finalResult.tag === sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL;
+                }
+            } catch (error) {
+                console.error("[Libsodium] Error en el último fragmento:", error);
+                throw new Error("Final chunk processing failed");
+            }
+        }
+
+        return {
+            newChunks: chunks,
+            remainingData: currentData,
+            bytesProcessed,
+            newState: state,
+            foundFinalTag
+        };
+    } catch (error) {
+        console.error("[Libsodium] Decryption error:", { error, bytesProcessed, remainingDataSize: currentData?.length, isFinal });
+        throw error;
+    }
+}
+
 
 export const encryptedThumbnail = async (thumbnailUint8Array, key) => {
     await sodium.ready;
